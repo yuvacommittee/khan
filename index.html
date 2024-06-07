@@ -33,7 +33,7 @@
 }
 </style>
 
-<link rel='stylesheet' id='sbi_styles-css' href='wp-content/plugins/instagram-feed-pro/css/sbi-styles.minfc7a.css?ver=6.0.6' media='all' />
+
 
 <style id='wp-emoji-styles-inline-css'>
 
@@ -50,30 +50,9 @@
 	}
 </style>
 
-<link rel='stylesheet' id='yith-wcan-shortcodes-css' href='wp-content/plugins/yith-woocommerce-ajax-navigation/assets/css/shortcodes972f.css?ver=5.0.1' media='all' />
 
 
-<style id='yith-wcan-shortcodes-inline-css'>
-:root{
-	--yith-wcan-filters_colors_titles: #434343;
-	--yith-wcan-filters_colors_background: #FFFFFF;
-	--yith-wcan-filters_colors_accent: #A7144C;
-	--yith-wcan-filters_colors_accent_r: 167;
-	--yith-wcan-filters_colors_accent_g: 20;
-	--yith-wcan-filters_colors_accent_b: 76;
-	--yith-wcan-color_swatches_border_radius: 100%;
-	--yith-wcan-color_swatches_size: 30px;
-	--yith-wcan-labels_style_background: #FFFFFF;
-	--yith-wcan-labels_style_background_hover: #A7144C;
-	--yith-wcan-labels_style_background_active: #A7144C;
-	--yith-wcan-labels_style_text: #434343;
-	--yith-wcan-labels_style_text_hover: #FFFFFF;
-	--yith-wcan-labels_style_text_active: #FFFFFF;
-	--yith-wcan-anchors_style_text: #434343;
-	--yith-wcan-anchors_style_text_hover: #A7144C;
-	--yith-wcan-anchors_style_text_active: #A7144C;
-}
-</style>
+
 
 <style id='classic-theme-styles-inline-css'>
 /*! This file is auto-generated */
@@ -92,9 +71,7 @@ body{--wp--preset--color--black: #000000;--wp--preset--color--cyan-bluish-gray: 
 .woocommerce form .form-row .required { visibility: visible; }
 </style>
 
-<link rel='stylesheet' id='qi-addons-for-elementor-grid-style-css' href='wp-content/plugins/qi-addons-for-elementor/assets/css/grid.min4735.css?ver=1.7.1' media='all' />
 
-<link rel='stylesheet' id='qi-addons-for-elementor-helper-parts-style-css' href='wp-content/plugins/qi-addons-for-elementor/assets/css/helper-parts.min4735.css?ver=1.7.1' media='all' />
 
 <link rel='stylesheet' id='qi-addons-for-elementor-style-css' href='wp-content/plugins/qi-addons-for-elementor/assets/css/main.min4735.css?ver=1.7.1' media='all' />
 
@@ -152,6 +129,7 @@ body{--wp--preset--color--black: #000000;--wp--preset--color--cyan-bluish-gray: 
 
 <link rel='stylesheet' id='elementor-icons-ekiticons-css' href='wp-content/plugins/elementskit-lite/modules/elementskit-icon-pack/assets/css/ekiticons583f.css?ver=3.1.3' media='all' />
 
+<link rel='stylesheet' id='loftloader-lite-animation-css' href='wp-content/plugins/loftloader/assets/css/loftloader.mina709.css?ver=2022112601' media='all' />
 
 <link rel='stylesheet' id='oceanwp-woocommerce-css' href='wp-content/themes/oceanwp/assets/css/woo/woocommerce.minef10.css?ver=6.5.3' media='all' />
 <link rel='stylesheet' id='oceanwp-woo-star-font-css' href='wp-content/themes/oceanwp/assets/css/woo/woo-star-font.minef10.css?ver=6.5.3' media='all' />
@@ -259,9 +237,20 @@ var wc_cart_fragments_params = {"ajax_url":"\/wp-admin\/admin-ajax.php","wc_ajax
 				}
 			//});
 		  };</script>
-
-
-		  		<style id="wp-custom-css">
+<style id="loftloader-lite-custom-bg-color">#loftloader-wrapper .loader-section {
+	background: #000000;
+}
+</style><style id="loftloader-lite-custom-bg-opacity">#loftloader-wrapper .loader-section {
+	opacity: 0.95;
+}
+</style><style id="loftloader-lite-custom-loader">#loftloader-wrapper.pl-imgloading #loader {
+	width: 200px;
+}
+#loftloader-wrapper.pl-imgloading #loader span {
+	background-size: cover;
+	background-image: url(wp-content/uploads/2022/01/logo-blank.png);
+}
+</style>		<style id="wp-custom-css">
 			#site-logo #site-logo-inner a:hover img{-moz-opacity:.6;-webkit-opacity:.6;opacity:1}a:focus{outline:solid 0 !important}.color{color:#E99701}#site-navigation-wrap{float:right;position:relative;right:-15px;top:20px}.header-2{transform:translateY(-100px);-moz-transition:all .3s ease !important;-webkit-transition:all .3s ease !important;transition:all .3s ease !important;opacity:0}.elementor-sticky--effects.header-2{height:auto !important;transform:translateY(0);opacity:1}.elementor-sticky--effects.header-1{display:none !important}/*scrollbar*/::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{box-shadow:inset 0 0 5px grey;border-radius:10px}::-webkit-scrollbar-thumb{background:#000;border-radius:10px}		</style>
 		<!-- OceanWP CSS -->
 <style type="text/css">
@@ -270,10 +259,23 @@ var wc_cart_fragments_params = {"ajax_url":"\/wp-admin\/admin-ajax.php","wc_ajax
 
 <body class="home page-template page-template-elementor_header_footer page page-id-2891 wp-embed-responsive theme-oceanwp woocommerce-no-js qodef-qi--no-touch qi-addons-for-elementor-1.7.1 woo-variation-swatches wvs-behavior-blur wvs-theme-oceanwp wvs-show-label wvs-tooltip yith-wcan-free oceanwp-theme dropdown-mobile no-header-border default-breakpoint has-sidebar content-right-sidebar page-header-disabled has-grid-list account-original-style no-margins loftloader-lite-enabled elementor-default elementor-template-full-width elementor-kit-12 elementor-page elementor-page-2891" itemscope="itemscope" itemtype="https://schema.org/WebPage">
 	
+	<div id="loftloader-wrapper" class="pl-imgloading" data-show-close-time="15000" data-max-load-time="0">
+		
+		<div class="loader-section section-fade"></div>
+		<div class="loader-inner">
+			<div id="loader">
+			<div class="imgloading-container">
+				<span style="background-image: url(wp-content/uploads/2022/01/logo-blank.png);"></span>
+			</div>
+				<img width="200" height="82" data-no-lazy="1" class="skip-lazy" alt="loader image" src="wp-content/uploads/2022/01/logo-blank.png"></div>
+			</div>
+			<div class="loader-close-button" style="display: none;"><span class="screen-reader-text">Close</span></div></div>
+
+	
 	
 	<div id="outer-wrap" class="site clr">
 
-		
+		<a class="skip-link screen-reader-text" href="#main">Skip to content</a>
 
 		
 		<div id="wrap" class="clr">
