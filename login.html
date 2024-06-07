@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+body {font-family: Arial, Helvetica, sans-serif;}
+.container {
+  padding: 16px;
+}
+h2 {
+    display: block;
+    font-size: 1.5em;
+    margin-block-start: 0.83em;
+    margin-block-end: 0.83em;
+    margin-inline-start: 0px;
+    margin-inline-end: 0px;
+    font-weight: bold;
+}
+button {
+  background-color: #04AA6D;
+  color: white;
+  padding: 14px 20px;
+  margin: 8px 0;
+  border: none;
+  cursor: pointer;
+  width: 100%;
+}
+
+button:hover {
+  opacity: 0.8;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <h2>Protected Page</h2>
+  <p>You are logged in!</p>
+  <p id="countdown"></p>
+  <button onclick="logout()">Logout</button>
+</div>
+
+<script>
+// Check login status
+if (localStorage.getItem('isLoggedIn') !== 'true') {
+  window.location.href = 'dashboard.html';
+}
+
+// Set logout timer
+const logoutTime = 5 * 60 * 500; // 10 minutes in milliseconds
+let timeLeft = logoutTime / 500; // Convert to seconds for countdown
+
+const countdownElement = document.getElementById('countdown');
+const countdownInterval = setInterval(() => {
+  timeLeft--;
+  countdownElement.textContent = `You will be logged out in ${timeLeft} seconds.`;
+  if (timeLeft <= 0) {
+    clearInterval(countdownInterval);
+    logout();
+  }
+}, 500);
+
+function logout() {
+  localStorage.removeItem('isLoggedIn');
+  window.location.href = 'dashboard.html';
+}
+</script>
+
+</body>
+</html>
