@@ -916,3 +916,9 @@ html, body {
     padding: 0 5px;
     font-size: 12px;
 }
+
+/*---- extranal input khans-----*/
+
+#loftloader-wrapper {
+    display: none !important;
+}
