@@ -39,6 +39,8 @@ text-align:center;font-weight:bold
 .card:nth-child(3){background:#f57c00}
 .card:nth-child(4){background:#8e24aa}
 .card:nth-child(5){background:#d32f2f}
+.card:nth-child(6){background:#00897b}
+.card:nth-child(7){background:#6d4c41}
 table{
 width:100%;border-collapse:collapse;margin-top:20px
 }
@@ -48,6 +50,7 @@ padding:8px;border:1px solid #ddd;text-align:center
 thead{background:#1e88e5;color:#fff}
 .total-row{background:#26c6da;color:#fff;font-weight:bold}
 .loading{text-align:center;padding:30px}
+.error{color:red;text-align:center;padding:20px}
 </style>
 </head>
 
@@ -85,25 +88,52 @@ thead{background:#1e88e5;color:#fff}
 <script>
 
 const PROXY_URL = "https://script.google.com/macros/s/AKfycbwc9ID_BPnlHgdFjomDbKx9h8kCwPSXPcHDafUobHE/exec";
+
 async function loadData(){
+
 const fps=document.getElementById("fps").value.trim();
 const month=document.getElementById("month").value;
 const year=document.getElementById("year").value;
 
-if(!fps){alert("Enter FPS ID");return;}
+if(!fps){
+alert("Enter FPS ID");
+return;
+}
 
 document.getElementById("dashboard").innerHTML="<div class='loading'>Loading...</div>";
 
-const res=await fetch(`${PROXY_URL}?fpsId=${fps}&month=${month}&year=${year}`);
-const data=await res.json();
+try{
+
+const response = await fetch(
+`${PROXY_URL}?fpsId=${fps}&month=${month}&year=${year}`,
+{
+method: "GET",
+redirect: "follow"
+}
+);
+
+if(!response.ok){
+throw new Error("Network Error");
+}
+
+const text = await response.text();
+const data = JSON.parse(text);
 
 buildDashboard(data);
+
+}catch(error){
+document.getElementById("dashboard").innerHTML =
+"<div class='error'>Error Loading Data</div>";
+console.error(error);
+}
+
 }
 
 function buildDashboard(data){
 
-if(!Array.isArray(data)){ 
-document.getElementById("dashboard").innerHTML="Error loading data";
+if(!Array.isArray(data)){
+document.getElementById("dashboard").innerHTML =
+"<div class='error'>Invalid Data Format</div>";
 return;
 }
 
@@ -113,62 +143,76 @@ let commodityTotals={};
 let dailyData={};
 
 data.forEach(tx=>{
+
 let scheme=tx.schemeShortName || "Unknown";
 schemeCount[scheme]=(schemeCount[scheme]||0)+1;
 
-let date=tx.loginTime;
+let date=tx.loginTime || "Unknown";
 
 if(!dailyData[date]) dailyData[date]={count:0,items:{}};
 dailyData[date].count++;
 
-tx.commodityList.forEach(item=>{
+(tx.commodityList||[]).forEach(item=>{
 let name=item.comm_name_en;
 let qty=parseFloat(item.sale_qty)||0;
 
-commodityTotals[name]=(commodityTotals[name]||0)+qty;
+if(!commodityTotals[name]) commodityTotals[name]=0;
+commodityTotals[name]+=qty;
 
 if(!dailyData[date].items[name])
 dailyData[date].items[name]=0;
 
 dailyData[date].items[name]+=qty;
 });
+
 });
 
 let html="<div class='cards'>";
 html+=card("Total Transactions",totalTxn);
+
 Object.keys(schemeCount).forEach(s=>{
 html+=card(s+" Cards",schemeCount[s]);
 });
+
 Object.keys(commodityTotals).forEach(c=>{
 html+=card(c+" (Kg)",commodityTotals[c].toFixed(1));
 });
+
 html+="</div>";
 
 html+="<table><thead><tr><th>Date</th><th>Txn</th>";
+
 Object.keys(commodityTotals).forEach(c=>{
 html+=`<th>${c}</th>`;
 });
+
 html+="</tr></thead><tbody>";
 
 Object.keys(dailyData).sort().forEach(date=>{
 html+=`<tr><td>${date}</td><td>${dailyData[date].count}</td>`;
+
 Object.keys(commodityTotals).forEach(c=>{
 html+=`<td>${dailyData[date].items[c]||0}</td>`;
 });
+
 html+="</tr>";
 });
 
 html+="<tr class='total-row'><td>TOTAL</td><td>"+totalTxn+"</td>";
+
 Object.keys(commodityTotals).forEach(c=>{
 html+=`<td>${commodityTotals[c].toFixed(1)}</td>`;
 });
+
 html+="</tr></tbody></table>";
 
 document.getElementById("dashboard").innerHTML=html;
+
 }
 
 function card(title,value){
-return `<div class='card'><div>${title}</div><div style="font-size:22px;margin-top:5px">${value}</div></div>`;
+return `<div class='card'><div>${title}</div>
+<div style="font-size:22px;margin-top:5px">${value}</div></div>`;
 }
 
 </script>
