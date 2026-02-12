@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SmartPDS Auto Dashboard</title>
+
+<style>
+body{
+font-family:Segoe UI;
+background:linear-gradient(135deg,#667eea,#764ba2);
+margin:0;padding:20px;color:#333;
+}
+.container{
+max-width:1200px;margin:auto;background:#fff;
+border-radius:15px;padding:25px;
+box-shadow:0 15px 40px rgba(0,0,0,0.2);
+}
+h2{text-align:center;margin-bottom:20px}
+.controls{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px}
+input,select{
+padding:10px;border-radius:8px;border:2px solid #667eea;font-size:15px
+}
+button{
+padding:10px 20px;border:none;border-radius:8px;
+background:#ff9800;color:#fff;font-weight:bold;
+cursor:pointer
+}
+.cards{
+display:flex;flex-wrap:wrap;gap:15px;margin-bottom:20px
+}
+.card{
+flex:1;min-width:180px;
+padding:15px;border-radius:10px;color:#fff;
+text-align:center;font-weight:bold
+}
+.card:nth-child(1){background:#1e88e5}
+.card:nth-child(2){background:#43a047}
+.card:nth-child(3){background:#f57c00}
+.card:nth-child(4){background:#8e24aa}
+.card:nth-child(5){background:#d32f2f}
+table{
+width:100%;border-collapse:collapse;margin-top:20px
+}
+th,td{
+padding:8px;border:1px solid #ddd;text-align:center
+}
+thead{background:#1e88e5;color:#fff}
+.total-row{background:#26c6da;color:#fff;font-weight:bold}
+.loading{text-align:center;padding:30px}
+</style>
+</head>
+
+<body>
+<div class="container">
+<h2>📊 SmartPDS Auto Dashboard</h2>
+
+<div class="controls">
+<input type="text" id="fps" placeholder="Enter FPS ID">
+<select id="month">
+<option value="1">Jan</option>
+<option value="2">Feb</option>
+<option value="3">Mar</option>
+<option value="4">Apr</option>
+<option value="5">May</option>
+<option value="6">Jun</option>
+<option value="7">Jul</option>
+<option value="8">Aug</option>
+<option value="9">Sep</option>
+<option value="10">Oct</option>
+<option value="11">Nov</option>
+<option value="12">Dec</option>
+</select>
+<select id="year">
+<option>2025</option>
+<option selected>2026</option>
+<option>2027</option>
+</select>
+<button onclick="loadData()">Fetch</button>
+</div>
+
+<div id="dashboard"></div>
+</div>
+
+<script>
+
+const PROXY_URL = "https://script.google.com/macros/s/AKfycbwc9ID_BPnlHgdFjomDbKx9h8kCwPSXPcHDafUobHE/exec";
+async function loadData(){
+const fps=document.getElementById("fps").value.trim();
+const month=document.getElementById("month").value;
+const year=document.getElementById("year").value;
+
+if(!fps){alert("Enter FPS ID");return;}
+
+document.getElementById("dashboard").innerHTML="<div class='loading'>Loading...</div>";
+
+const res=await fetch(`${PROXY_URL}?fpsId=${fps}&month=${month}&year=${year}`);
+const data=await res.json();
+
+buildDashboard(data);
+}
+
+function buildDashboard(data){
+
+if(!Array.isArray(data)){ 
+document.getElementById("dashboard").innerHTML="Error loading data";
+return;
+}
+
+let totalTxn=data.length;
+let schemeCount={};
+let commodityTotals={};
+let dailyData={};
+
+data.forEach(tx=>{
+let scheme=tx.schemeShortName || "Unknown";
+schemeCount[scheme]=(schemeCount[scheme]||0)+1;
+
+let date=tx.loginTime;
+
+if(!dailyData[date]) dailyData[date]={count:0,items:{}};
+dailyData[date].count++;
+
+tx.commodityList.forEach(item=>{
+let name=item.comm_name_en;
+let qty=parseFloat(item.sale_qty)||0;
+
+commodityTotals[name]=(commodityTotals[name]||0)+qty;
+
+if(!dailyData[date].items[name])
+dailyData[date].items[name]=0;
+
+dailyData[date].items[name]+=qty;
+});
+});
+
+let html="<div class='cards'>";
+html+=card("Total Transactions",totalTxn);
+Object.keys(schemeCount).forEach(s=>{
+html+=card(s+" Cards",schemeCount[s]);
+});
+Object.keys(commodityTotals).forEach(c=>{
+html+=card(c+" (Kg)",commodityTotals[c].toFixed(1));
+});
+html+="</div>";
+
+html+="<table><thead><tr><th>Date</th><th>Txn</th>";
+Object.keys(commodityTotals).forEach(c=>{
+html+=`<th>${c}</th>`;
+});
+html+="</tr></thead><tbody>";
+
+Object.keys(dailyData).sort().forEach(date=>{
+html+=`<tr><td>${date}</td><td>${dailyData[date].count}</td>`;
+Object.keys(commodityTotals).forEach(c=>{
+html+=`<td>${dailyData[date].items[c]||0}</td>`;
+});
+html+="</tr>";
+});
+
+html+="<tr class='total-row'><td>TOTAL</td><td>"+totalTxn+"</td>";
+Object.keys(commodityTotals).forEach(c=>{
+html+=`<td>${commodityTotals[c].toFixed(1)}</td>`;
+});
+html+="</tr></tbody></table>";
+
+document.getElementById("dashboard").innerHTML=html;
+}
+
+function card(title,value){
+return `<div class='card'><div>${title}</div><div style="font-size:22px;margin-top:5px">${value}</div></div>`;
+}
+
+</script>
+</body>
+</html>
