@@ -2,63 +2,63 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>SmartPDS Auto Dashboard</title>
-
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
 body{
-font-family:Segoe UI;
+font-family:Arial;
 background:linear-gradient(135deg,#667eea,#764ba2);
-margin:0;padding:20px;color:#333;
+margin:0;
+padding:20px;
 }
 .container{
-max-width:1200px;margin:auto;background:#fff;
-border-radius:15px;padding:25px;
+max-width:900px;
+margin:auto;
+background:white;
+padding:30px;
+border-radius:15px;
 box-shadow:0 15px 40px rgba(0,0,0,0.2);
 }
-h2{text-align:center;margin-bottom:20px}
-.controls{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px}
-input,select{
-padding:10px;border-radius:8px;border:2px solid #667eea;font-size:15px
+h1{text-align:center;}
+input,select,button{
+padding:12px;
+font-size:16px;
+margin:5px;
+border-radius:8px;
+border:2px solid #667eea;
 }
 button{
-padding:10px 20px;border:none;border-radius:8px;
-background:#ff9800;color:#fff;font-weight:bold;
-cursor:pointer
+background:#ff9800;
+color:white;
+border:none;
+cursor:pointer;
 }
-.cards{
-display:flex;flex-wrap:wrap;gap:15px;margin-bottom:20px
-}
+button:hover{opacity:0.9;}
 .card{
-flex:1;min-width:180px;
-padding:15px;border-radius:10px;color:#fff;
-text-align:center;font-weight:bold
+background:#f1f3f4;
+padding:15px;
+margin:10px 0;
+border-radius:10px;
 }
-.card:nth-child(1){background:#1e88e5}
-.card:nth-child(2){background:#43a047}
-.card:nth-child(3){background:#f57c00}
-.card:nth-child(4){background:#8e24aa}
-.card:nth-child(5){background:#d32f2f}
-.card:nth-child(6){background:#00897b}
-.card:nth-child(7){background:#6d4c41}
+.loading{text-align:center;font-size:18px;}
 table{
-width:100%;border-collapse:collapse;margin-top:20px
+width:100%;
+border-collapse:collapse;
+margin-top:20px;
 }
 th,td{
-padding:8px;border:1px solid #ddd;text-align:center
+border:1px solid #ddd;
+padding:8px;
+text-align:center;
 }
-thead{background:#1e88e5;color:#fff}
-.total-row{background:#26c6da;color:#fff;font-weight:bold}
-.loading{text-align:center;padding:30px}
-.error{color:red;text-align:center;padding:20px}
+th{background:#667eea;color:white;}
 </style>
 </head>
-
 <body>
-<div class="container">
-<h2>📊 SmartPDS Auto Dashboard</h2>
 
-<div class="controls">
+<div class="container">
+<h1>📊 SmartPDS Auto Dashboard</h1>
+
 <input type="text" id="fps" placeholder="Enter FPS ID">
 <select id="month">
 <option value="1">Jan</option>
@@ -74,20 +74,21 @@ thead{background:#1e88e5;color:#fff}
 <option value="11">Nov</option>
 <option value="12">Dec</option>
 </select>
+
 <select id="year">
+<option>2024</option>
 <option>2025</option>
 <option selected>2026</option>
-<option>2027</option>
 </select>
+
 <button onclick="loadData()">Fetch</button>
-</div>
 
 <div id="dashboard"></div>
 </div>
 
 <script>
 
-const PROXY_URL = "https://script.google.com/macros/s/AKfycbwc9ID_BPnlHgdFjomDbKx9h8kCwPSXPcHDafUobHE/exec";
+const PROXY_URL="https://script.google.com/macros/s/AKfycbwc9ID_BPnlHgdFjomDbKx9h8kCwPSXPcHDafUobHE/exec";
 
 async function loadData(){
 
@@ -95,124 +96,82 @@ const fps=document.getElementById("fps").value.trim();
 const month=document.getElementById("month").value;
 const year=document.getElementById("year").value;
 
-if(!fps){
-alert("Enter FPS ID");
-return;
-}
+if(!fps){alert("Enter FPS ID");return;}
 
 document.getElementById("dashboard").innerHTML="<div class='loading'>Loading...</div>";
 
 try{
 
-const response = await fetch(
-`${PROXY_URL}?fpsId=${fps}&month=${month}&year=${year}`,
-{
-method: "GET",
-redirect: "follow"
-}
-);
+const response=await fetch(`${PROXY_URL}?fpsId=${fps}&month=${month}&year=${year}`);
+const text=await response.text();
 
-if(!response.ok){
-throw new Error("Network Error");
+if(!text || text.includes("<!DOCTYPE")){
+throw new Error("Invalid Response");
 }
 
-const text = await response.text();
-const data = JSON.parse(text);
-
+const data=JSON.parse(text);
 buildDashboard(data);
 
-}catch(error){
-document.getElementById("dashboard").innerHTML =
-"<div class='error'>Error Loading Data</div>";
-console.error(error);
+}catch(err){
+document.getElementById("dashboard").innerHTML="<div style='color:red;text-align:center;'>Error Loading Data</div>";
+console.log(err);
 }
 
 }
 
 function buildDashboard(data){
 
-if(!Array.isArray(data)){
-document.getElementById("dashboard").innerHTML =
-"<div class='error'>Invalid Data Format</div>";
-return;
+let totalTxn=data.length;
+let commodityTotals={};
+
+data.forEach(txn=>{
+if(txn.commodityList){
+txn.commodityList.forEach(c=>{
+let name=c.comm_name_en || "Unknown";
+let qty=parseFloat(c.sale_qty)||0;
+
+if(!commodityTotals[name]){
+commodityTotals[name]=0;
+}
+commodityTotals[name]+=qty;
+});
+}
+});
+
+let html="";
+
+html+=`<div class='card'><b>Total Transactions:</b> ${totalTxn}</div>`;
+
+for(let item in commodityTotals){
+html+=`<div class='card'><b>${item} Total:</b> ${commodityTotals[item].toFixed(2)} Kg</div>`;
 }
 
-let totalTxn=data.length;
-let schemeCount={};
-let commodityTotals={};
-let dailyData={};
+html+="<table><tr><th>RC No</th><th>Scheme</th><th>Date</th><th>Commodity</th><th>Qty</th></tr>";
 
-data.forEach(tx=>{
+data.forEach(txn=>{
+let date=txn.loginTime||"-";
+let scheme=txn.schemeShortName||"-";
+let rc=txn.existingRcNumber||"-";
 
-let scheme=tx.schemeShortName || "Unknown";
-schemeCount[scheme]=(schemeCount[scheme]||0)+1;
-
-let date=tx.loginTime || "Unknown";
-
-if(!dailyData[date]) dailyData[date]={count:0,items:{}};
-dailyData[date].count++;
-
-(tx.commodityList||[]).forEach(item=>{
-let name=item.comm_name_en;
-let qty=parseFloat(item.sale_qty)||0;
-
-if(!commodityTotals[name]) commodityTotals[name]=0;
-commodityTotals[name]+=qty;
-
-if(!dailyData[date].items[name])
-dailyData[date].items[name]=0;
-
-dailyData[date].items[name]+=qty;
+if(txn.commodityList){
+txn.commodityList.forEach(c=>{
+let name=c.comm_name_en||"-";
+let qty=c.sale_qty||0;
+html+=`<tr>
+<td>${rc}</td>
+<td>${scheme}</td>
+<td>${date}</td>
+<td>${name}</td>
+<td>${qty}</td>
+</tr>`;
+});
+}
 });
 
-});
-
-let html="<div class='cards'>";
-html+=card("Total Transactions",totalTxn);
-
-Object.keys(schemeCount).forEach(s=>{
-html+=card(s+" Cards",schemeCount[s]);
-});
-
-Object.keys(commodityTotals).forEach(c=>{
-html+=card(c+" (Kg)",commodityTotals[c].toFixed(1));
-});
-
-html+="</div>";
-
-html+="<table><thead><tr><th>Date</th><th>Txn</th>";
-
-Object.keys(commodityTotals).forEach(c=>{
-html+=`<th>${c}</th>`;
-});
-
-html+="</tr></thead><tbody>";
-
-Object.keys(dailyData).sort().forEach(date=>{
-html+=`<tr><td>${date}</td><td>${dailyData[date].count}</td>`;
-
-Object.keys(commodityTotals).forEach(c=>{
-html+=`<td>${dailyData[date].items[c]||0}</td>`;
-});
-
-html+="</tr>";
-});
-
-html+="<tr class='total-row'><td>TOTAL</td><td>"+totalTxn+"</td>";
-
-Object.keys(commodityTotals).forEach(c=>{
-html+=`<td>${commodityTotals[c].toFixed(1)}</td>`;
-});
-
-html+="</tr></tbody></table>";
+html+="</table>";
 
 document.getElementById("dashboard").innerHTML=html;
 
-}
-
-function card(title,value){
-return `<div class='card'><div>${title}</div>
-<div style="font-size:22px;margin-top:5px">${value}</div></div>`;
 }
 
 </script>
